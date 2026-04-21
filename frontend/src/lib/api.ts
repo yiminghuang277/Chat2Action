@@ -1,4 +1,4 @@
-import type { AnalyzeResponse, ToneType } from "./types";
+import type { AnalyzeResponse } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -21,14 +21,14 @@ export async function analyzeRecord(payload: {
   return response.json();
 }
 
-export async function generateFollowup(payload: AnalyzeResponse & { tone: ToneType }): Promise<string> {
+export async function generateFollowup(payload: AnalyzeResponse): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/api/followup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
   if (!response.ok) {
-    throw new Error("follow-up 生成失败。");
+    throw new Error("汇总消息生成失败。");
   }
   const data = (await response.json()) as { message: string };
   return data.message;

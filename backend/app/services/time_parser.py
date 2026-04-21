@@ -37,7 +37,7 @@ TIME_OF_DAY_DEFAULTS = {
 UNCERTAIN_MARKERS = ("尽快", "近期", "左右", "大概", "约", "再定", "待定")
 DEADLINE_MARKERS = ("截止", "最晚", "前", "之前", "以内", "内")
 SYNC_MARKERS = ("同步", "回复", "反馈")
-START_MARKERS = ("开始", "启动", "着手", "先")
+START_MARKERS = ("开始", "启动", "着手", "开工")
 
 
 def _combine(target_date: date, hour: int = 18, minute: int = 0) -> str:
@@ -160,7 +160,7 @@ def normalize_time_info(
                 hour, minute = default_time
                 break
         normalized = _combine(target, hour, minute)
-        info.normalized_value = normalized if ("前" in text or "同步" in context_text or "给" in context_text) else normalized
+        info.normalized_value = normalized
         info.range_start = _combine(target, 0, 0)
         info.range_end = normalized
         info.granularity = TimeGranularity.day

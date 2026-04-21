@@ -3,6 +3,7 @@ export type ToneType = "formal" | "concise";
 export type TimeGranularity = "year" | "month" | "day" | "hour" | "range" | "unknown";
 export type TimeRelation = "deadline" | "start_time" | "sync_time" | "unknown";
 export type CertaintyLevel = "high" | "medium" | "low";
+export type WorkStatus = "in_progress" | "pending" | "blocked" | "unknown";
 
 export type StructuredTimeInfo = {
   raw_text: string | null;
@@ -15,21 +16,14 @@ export type StructuredTimeInfo = {
   certainty_level: CertaintyLevel;
 };
 
-export type HeadcountInfo = {
-  raw_text: string | null;
-  estimated_min: number | null;
-  estimated_max: number | null;
-  is_uncertain: boolean;
-};
-
 export type WorkItem = {
   id: string;
-  title: string;
-  description: string;
-  headcount: HeadcountInfo | null;
-  roles: string[];
+  summary: string;
+  details: string;
+  people: string[];
   schedule: StructuredTimeInfo | null;
   priority: "high" | "medium" | "low";
+  status: WorkStatus;
   risks: string[];
   confidence: number;
   evidence: string;

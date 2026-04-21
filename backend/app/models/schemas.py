@@ -37,6 +37,13 @@ class CertaintyLevel(str, Enum):
     low = "low"
 
 
+class WorkStatus(str, Enum):
+    in_progress = "in_progress"
+    pending = "pending"
+    blocked = "blocked"
+    unknown = "unknown"
+
+
 class StructuredTimeInfo(BaseModel):
     raw_text: str | None = None
     normalized_value: str | None = None
@@ -46,13 +53,6 @@ class StructuredTimeInfo(BaseModel):
     relation: TimeRelation = TimeRelation.unknown
     is_uncertain: bool = False
     certainty_level: CertaintyLevel = CertaintyLevel.medium
-
-
-class HeadcountInfo(BaseModel):
-    raw_text: str | None = None
-    estimated_min: int | None = Field(default=None, ge=0)
-    estimated_max: int | None = Field(default=None, ge=0)
-    is_uncertain: bool = True
 
 
 class AnalyzeRequest(BaseModel):
@@ -71,11 +71,11 @@ class AnalyzeRequest(BaseModel):
 
 class WorkItem(BaseModel):
     id: str
-    title: str
-    description: str
-    headcount: HeadcountInfo | None = None
-    roles: list[str] = Field(default_factory=list)
+    summary: str
+    details: str
+    people: list[str] = Field(default_factory=list)
     schedule: StructuredTimeInfo | None = None
+    status: WorkStatus = WorkStatus.unknown
     priority: Literal["high", "medium", "low"] = "medium"
     risks: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0, le=1)

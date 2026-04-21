@@ -1,165 +1,95 @@
 # chat2action
 
-`chat2action` 是一个把长对话转成任务排期视图的 AI Demo。
+`chat2action` 是一个把长对话直接整理成结构化事件面板的 AI Demo。
 
-它面向一个具体且常见的协作场景：微信群聊、需求讨论、项目推进记录中往往包含大量有效信息，但这些信息通常还需要人工再整理，才能真正变成可执行的事项。这个项目的目标，就是把这一步尽量自动化。
+它面向一个很常见的协作场景：微信群、项目讨论、需求同步、推进记录里往往包含大量有效信息，但这些信息通常还需要人工再整理，才能变成可执行的事项。这个项目的目标，就是把这一步尽量自动化。
 
 用户只需要粘贴一段长对话，系统就会提取并展示：
 
-- 当前待办事项
-- 需求描述
-- 预计人数
-- 建议角色
-- 时间要求
-- 资源缺口与风险
-- 一段可直接发送的 follow-up 消息
+- 事件摘要
+- 相关人员
+- 详细内容
+- 时间原文
+- 当前状态
+- 风险信息
+- 全局风险与待确认项
+- 可直接发送的汇总消息
 
-和传统“会议总结”不同，`chat2action` 更关注任务盘点和排期视角，而不是泛化摘要。
+和传统“聊天总结”不同，`chat2action` 更关注“事件盘点 + 风险识别 + 跟进输出”，而不是泛化摘要。
+
+## Demo 展示
+
+### 1. 主界面
+
+左侧输入原始对话，右侧展示结构化结果和可编辑事件详情，底部生成汇总消息。
+
+![chat2action 主界面](docs/screenshots/menu.png)
+
+### 2. 结构化结果
+
+系统会先生成一段整体摘要，并列出当前识别到的事件概览，方便快速判断提取质量。
+
+![chat2action 结构化结果](docs/screenshots/结构化结果.png)
+
+### 3. 事件详情
+
+每个事件都会按字段展开，展示事件摘要、相关人员、详细内容、时间原文、当前状态和风险信息，便于人工复核和微调。
+
+![chat2action 事件详情](docs/screenshots/事件详情.png)
+
+### 4. 全局风险与待确认项
+
+对于没有落到单个事件上、但会影响整体推进的依赖、风险或待确认信息，系统会单独汇总到这一栏。
+
+![chat2action 全局风险与待确认项](docs/screenshots/全局风险与待确认项.png)
+
+### 5. 汇总消息
+
+结构化结果可以进一步整理成一段可直接复制发送的汇总消息，用于群内同步或 follow-up。
+
+![chat2action 汇总消息](docs/screenshots/汇总信息.png)
 
 ## 场景示例
 
 输入：
 
 ```text
-我们这周要把支付改版需求收一下。
-我今天先整理接口变更清单，明天下午给研发。
-联调可能会延期，测试环境现在还没完全稳定。
-那测试环境谁来确认最终可用时间？
-我去找测试同学确认，周三下班前同步。
-如果接口文档今天出不来，前端排期会卡住。
+本周需要把会员中心改版方案收敛一下。
+我先整理页面改动清单，明天下午同步给研发。
+数据埋点口径还没完全对齐，可能会影响联调时间。
+测试环境最终可用时间还没确认，周三下班前需要同步结果。
+小林这边在补埋点文档，小周在检查接口字段是否齐全。
+如果埋点文档今天出不来，前端排期可能会被卡住。
 ```
 
 系统会重点提取这些信息：
 
-- 有哪些事项需要继续推进
-- 哪些事项的时间已经明确，哪些仍然模糊或待确认
-- 哪些事项存在资源缺口
-- 当前主要阻塞风险是什么
+- 当前有哪些事件在推进
+- 哪些事件已经出现明确时间要求
+- 哪些风险会影响整体推进
+- 哪些信息仍然需要人工确认
 
-一个典型的结构化结果会接近下面这样：
+## 设计原则
 
-```json
-{
-  "summary": "当前讨论主要围绕支付改版推进、测试环境确认和接口文档风险。",
-  "work_items": [
-    {
-      "title": "整理接口变更清单",
-      "description": "整理后同步给研发，用于支付改版推进。",
-      "headcount": {
-        "raw_text": null,
-        "estimated_min": null,
-        "estimated_max": null,
-        "is_uncertain": true
-      },
-      "roles": [],
-      "schedule": {
-        "raw_text": "明天下午",
-        "normalized_value": "2026-04-22 15:00",
-        "granularity": "day",
-        "relation": "deadline",
-        "is_uncertain": false,
-        "certainty_level": "high"
-      },
-      "priority": "high",
-      "risks": [
-        "研发推进依赖该清单"
-      ]
-    },
-    {
-      "title": "确认测试环境最终可用时间",
-      "description": "联系测试同学确认测试环境最终可用时间，并在周三下班前同步结果。",
-      "headcount": {
-        "raw_text": null,
-        "estimated_min": null,
-        "estimated_max": null,
-        "is_uncertain": true
-      },
-      "roles": [],
-      "schedule": {
-        "raw_text": "周三下班前",
-        "normalized_value": "2026-04-22 18:00",
-        "granularity": "day",
-        "relation": "deadline",
-        "is_uncertain": false,
-        "certainty_level": "high"
-      },
-      "priority": "high",
-      "risks": [
-        "测试环境未稳定，联调可能延期"
-      ]
-    }
-  ],
-  "resource_gaps": [
-    "测试环境最终可用时间仍需确认",
-    "接口文档若未及时产出，会影响前端排期"
-  ]
-}
-```
-
-## Demo 预览
-
-### 首页
-
-展示“左侧原始对话 + 右侧结构化任务表 + 底部 follow-up”整体布局。
-
-![chat2action 首页](docs/screenshots/home.png)
-
-### 结果细节
-
-展示任务项中的时间解析、人数待确认、资源缺口和风险提示。
-
-![chat2action 结果示例](docs/screenshots/result.png)
-
-展示正式版follow-up。
-![chat2action 结果示例 2](docs/screenshots/result2.png)
-
-## 设计说明
-
-这个 Demo 不强求“完全还原每个说话人”，而是优先提取在实际协作中更有价值的信息：
-
-- 事情本身是什么
-- 还需要哪些资源
-- 时间要求是否明确
-- 哪些风险正在影响推进
-
-对于聊天记录里没有明确提到的信息，系统会：
-
-- 保留为空
-- 标记为待确认
-- 或显式标记为不确定
-
-不会为了让结果看起来完整，而凭空补出负责人、人数或精确时间。
-
-后端采用两层策略：
-
-- 优先使用 LLM 进行结构化抽取
-- 当模型不可用时，回退到本地 heuristic fallback，保证 Demo 仍可运行
-
-## 功能特性
-
-- 从长对话中提取结构化任务事项
-- 抽取需求描述、时间要求、建议角色和风险
-- 支持模糊时间表达，如“尽快”“近期”“下周左右”
-- 对未提及的人手、角色、时间显示为待确认或不确定
-- 识别资源缺口和阻塞问题
-- 生成可直接发送的跟进消息
-- 支持在线 LLM 解析和本地 fallback 兜底
+- 不强行还原每一个说话人，而是优先提取对推进最有价值的信息
+- 对原文没有明确提及的信息，保留为空或标记为待确认
+- 不为了让结果“看起来完整”而凭空补负责人、精确时间或额外结论
+- 把模型结果直接整理成前端可展示字段，减少中间转换噪声
 
 ## 技术栈
 
 - 前端：React + Vite + TypeScript + Tailwind CSS
 - 后端：FastAPI + Pydantic
 - 模型：DashScope / Qwen 兼容接口
-- 兜底策略：本地 heuristic extraction
 
 ## 项目结构
 
 ```text
-backend/    FastAPI 服务与抽取流程
+backend/    FastAPI 服务与抽取逻辑
 frontend/   前端页面
 tests/      接口与时间解析测试
 samples/    示例输入
-docs/       截图与演示素材
+docs/       截图等展示素材
 ```
 
 ## 本地运行
@@ -203,8 +133,6 @@ DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-如果没有配置在线模型，系统会回退到本地规则逻辑，仍然可以完成基础演示。
-
 ## API
 
 ### `POST /api/analyze`
@@ -228,7 +156,7 @@ VITE_API_BASE_URL=http://localhost:8000
 
 ### `POST /api/followup`
 
-输入结构化任务结果，输出一段可直接发送的跟进消息。
+输入结构化结果，输出一段可直接发送的汇总消息。
 
 ## 测试
 
@@ -243,9 +171,3 @@ python -m pytest tests/test_api.py tests/test_time_parser.py
 ```bash
 npm run frontend:build
 ```
-
-## 仓库说明
-
-- `.env.example` 只保留示例配置，不包含真实 API Key
-- `.gitignore` 已忽略本地依赖、缓存和环境文件
-- 截图、录屏 GIF 等展示素材建议统一放在 `docs/` 或 `assets/` 目录

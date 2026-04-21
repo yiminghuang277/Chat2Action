@@ -4,8 +4,8 @@ import re
 from dataclasses import dataclass
 
 
-LINE_NOISE_PATTERN = re.compile(r"^\s*(已读|收到|好的+|ok|okk+|嗯+|哈哈+)\s*$", re.IGNORECASE)
-QUOTE_MARK_PATTERN = re.compile(r"^[>＞]\s*")
+LINE_NOISE_PATTERN = re.compile(r"^\s*(已读|收到|好的+|ok|okk+|嗯+|哈+|哈哈+)\s*$", re.IGNORECASE)
+QUOTE_MARK_PATTERN = re.compile(r"^[>\s]+")
 EMOJI_PATTERN = re.compile(r"\[[^\]]{1,10}\]")
 SPEAKER_PATTERN = re.compile(r"^(?P<speaker>[\u4e00-\u9fa5A-Za-z0-9_-]{1,20})\s*[:：]\s*(?P<content>.+)$")
 
@@ -47,7 +47,3 @@ def split_turns(text: str) -> list[MessageTurn]:
         else:
             turns.append(MessageTurn(speaker=None, content=line.strip(), raw=line.strip()))
     return turns
-
-
-def has_explicit_speakers(turns: list[MessageTurn]) -> bool:
-    return any(turn.speaker for turn in turns)
