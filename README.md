@@ -109,6 +109,7 @@
 展示任务项中的时间解析、人数待确认、资源缺口和风险提示。
 
 ![chat2action 结果示例](docs/screenshots/result.png)
+![chat2action 结果示例 2](docs/screenshots/result1.png)
 
 ## 设计说明
 
@@ -164,7 +165,7 @@ docs/       截图与演示素材
 ### 1. 克隆仓库
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/yiminghuang277/Chat2Action
 cd chat2action
 ```
 
