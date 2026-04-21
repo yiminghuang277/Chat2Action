@@ -109,6 +109,8 @@
 展示任务项中的时间解析、人数待确认、资源缺口和风险提示。
 
 ![chat2action 结果示例](docs/screenshots/result.png)
+
+展示正式版follow-up。
 ![chat2action 结果示例 2](docs/screenshots/result1.png)
 
 ## 设计说明
